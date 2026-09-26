@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block content %}<section class="card">
+<h2>Send the report</h2>
+<p class="hint">The generated PPT will be attached and sent via the DataPattern mail agent.</p>
+
+<div class="form-row">
+<div class="form-group"><label for="recipient_email">Recipient email</label><input type="email" id="recipient_email" placeholder="client@example.com"></div>
+<div class="form-group"><label for="cc_email">CC (comma separated, optional)</label><input type="text" id="cc_email" placeholder="pm@datapattern.ai"></div>
+</div>
+
+<div class="form-group"><label for="sender_email">Sender (from)</label><input type="email" id="sender_email" value="{{ sender_email }}"></div>
+
+<div class="form-group"><label for="email_subject">Subject</label><input type="text" id="email_subject"></div>
+
+<div class="form-group"><label for="email_message">Message</label><textarea id="email_message" rows="4"></textarea></div>
+
+<div class="button-row space-between">
+<a href="/step4" class="btn btn-ghost">&larr; Back</a>
+<button class="btn btn-accent" id="send_btn"><span id="send_spinner" class="spinner hidden"></span>Send email</button>
+</div>
+</section>
+{% endblock %}{% block scripts %}<script src="{{ url_for('static', filename='js/step5.js') }}"></script>{% endblock %}

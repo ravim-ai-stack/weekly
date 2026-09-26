@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{% block title %}DataPattern Weekly Report Agent{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head><body>
+<div class="app-shell">
+<aside class="sidebar">
+<div class="sidebar-logo"><img src="{{ url_for('static', filename='img/datapattern-logo.png') }}" alt="DataPattern"></div>
+<h2 class="sidebar-title">Weekly Report Agent</h2>
+<nav class="stepper stepper-vertical stepper-five"><a class="step-item {{ 'active' if active_step == 1 else ('done' if active_step > 1 else '') }}" href="/step1"><span class="step-circle">1</span><span class="step-label">Team &amp; Project</span></a><div class="step-line {{ 'filled' if active_step > 1 else '' }}"></div><a class="step-item {{ 'active' if active_step == 2 else ('done' if active_step > 2 else '') }}" href="/step2"><span class="step-circle">2</span><span class="step-label">Weekly Update</span></a><div class="step-line {{ 'filled' if active_step > 2 else '' }}"></div><a class="step-item {{ 'active' if active_step == 3 else ('done' if active_step > 3 else '') }}" href="/step3"><span class="step-circle">3</span><span class="step-label">Review</span></a><div class="step-line {{ 'filled' if active_step > 3 else '' }}"></div><a class="step-item {{ 'active' if active_step == 4 else ('done' if active_step > 4 else '') }}" href="/step4"><span class="step-circle">4</span><span class="step-label">Generate</span></a><div class="step-line {{ 'filled' if active_step > 4 else '' }}"></div><a class="step-item {{ 'active' if active_step == 5 else '' }}" href="/step5"><span class="step-circle">5</span><span class="step-label">Send</span></a></nav>
+</aside>
+<div class="main-area">
+<main class="container"><div id="toast" class="toast hidden"></div>{% block content %}{% endblock %}</main>
+</div>
+</div>
+<div id="page_loading" class="page-loading hidden"><div class="page-loading-box"><span class="spinner spinner-lg"></span><span id="page_loading_text">Working...</span></div></div>
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>{% block scripts %}{% endblock %}</body></html>

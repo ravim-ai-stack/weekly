@@ -1,0 +1,115 @@
+{% extends "base.html" %}{% block content %}<section class="card">
+<h2>Weekly update</h2>
+<div id="context_bar" class="summary-bar"></div>
+
+<div id="mode_step" class="hidden">
+<p class="hint">How do you want to log this week's work?</p>
+<div class="mode-choice">
+<button type="button" class="btn btn-secondary mode-btn" id="mode_daily_btn">Daily Update</button>
+<button type="button" class="btn btn-secondary mode-btn" id="mode_weekly_btn">Weekly Update</button>
+</div>
+</div>
+
+<div id="daily_step" class="hidden">
+<div class="button-row right"><button type="button" class="btn btn-ghost btn-sm" id="change_mode_btn">&larr; Change update type</button></div>
+
+<div class="form-group small">
+<label for="daily_date">Date</label>
+<input type="date" id="daily_date">
+</div>
+
+<div id="daily_week_preview" class="week-preview hidden"></div>
+
+<h3>Entries for this date</h3>
+<div id="daily_entries_list" class="item-list"></div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="daily_person">Name</label>
+<select id="daily_person">
+<option value="">Select...</option>
+{% for name in medtronic_team %}<option value="{{ name }}">{{ name }}</option>{% endfor %}
+</select>
+</div>
+<div class="form-group small">
+<label for="daily_hrs">Hrs</label>
+<input type="number" id="daily_hrs" min="0.5" max="24" step="0.5">
+</div>
+</div>
+<div class="form-group">
+<label for="daily_description">Description</label>
+<textarea id="daily_description" rows="3" placeholder="What did you work on..."></textarea>
+</div>
+<div class="button-row right"><button class="btn btn-accent" id="daily_add_btn"><span id="daily_spinner" class="spinner hidden"></span>Add entry</button></div>
+
+<div class="download-panel hidden" id="daily_download_panel">
+<span>Timesheet ready</span>
+<button type="button" class="btn btn-secondary btn-sm" id="download_open_btn">Download &darr;</button>
+</div>
+
+<div id="download_choice_step" class="hidden">
+<p class="hint">How would you like to download it?</p>
+<div class="mode-choice">
+<button type="button" class="btn btn-secondary mode-btn" id="download_standard_btn">Standard Download</button>
+<button type="button" class="btn btn-secondary mode-btn" id="download_custom_btn">Custom Date Range</button>
+</div>
+</div>
+
+<div id="download_custom_step" class="hidden">
+<p class="hint">Pick a start and end date. Entries in that range are downloaded as one continuous list (not split by week).</p>
+<div class="form-row">
+<div class="form-group small">
+<label for="custom_start_date">Start date</label>
+<input type="date" id="custom_start_date">
+</div>
+<div class="form-group small">
+<label for="custom_end_date">End date</label>
+<input type="date" id="custom_end_date">
+</div>
+</div>
+<div class="button-row right">
+<button type="button" class="btn btn-ghost btn-sm" id="download_custom_cancel_btn">Cancel</button>
+<button class="btn btn-accent btn-sm" id="download_custom_go_btn"><span id="download_custom_spinner" class="spinner hidden"></span>Download</button>
+</div>
+</div>
+
+<div class="button-row space-between">
+<a href="/step1" class="btn btn-ghost">&larr; Back</a>
+<span></span>
+</div>
+</div>
+
+<div id="date_step" class="hidden">
+<p class="hint" id="date_step_hint">Pick the week this update covers.</p>
+<div class="form-row">
+<div class="form-group small">
+<label for="start_date">Start date</label>
+<input type="date" id="start_date">
+</div>
+<div class="form-group small">
+<label for="end_date">End date</label>
+<input type="date" id="end_date">
+</div>
+</div>
+
+<div class="button-row space-between">
+<a href="/step1" class="btn btn-ghost">&larr; Back</a>
+<button class="btn btn-accent" id="load_week_btn" disabled>Continue &rarr;</button>
+</div>
+</div>
+
+<div id="entries_step" class="hidden">
+<div id="week_preview" class="week-preview"></div>
+<div class="button-row right"><button type="button" class="btn btn-ghost btn-sm" id="change_week_btn">&larr; Change week</button></div>
+
+<h3>Team updates</h3>
+<div id="entries_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="add_person">+ Add person</button></div>
+
+<div class="button-row space-between">
+<span></span>
+<button class="btn btn-accent" id="consolidate_btn" disabled><span id="consolidate_spinner" class="spinner hidden"></span>Confirm &amp; Consolidate</button>
+</div>
+</div>
+</section>
+{% endblock %}{% block scripts %}<script src="{{ url_for('static', filename='js/step2.js') }}"></script>{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block content %}<section class="card">
+<h2>Report generated</h2>
+<p class="hint">The status report has been updated. Everything else was left untouched. Download it to double-check before sending.</p>
+
+<div class="download-panel">
+<span id="filename_label">Generating...</span>
+<a href="#" id="download_link" class="btn btn-secondary btn-sm" target="_blank">Download report</a>
+</div>
+
+<div class="button-row space-between">
+<a href="/step3" class="btn btn-ghost">&larr; Back to edit</a>
+<a href="/step5" class="btn btn-accent">Continue to send email &rarr;</a>
+</div>
+</section>
+{% endblock %}{% block scripts %}<script src="{{ url_for('static', filename='js/step4.js') }}"></script>{% endblock %}

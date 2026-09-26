@@ -1,0 +1,85 @@
+{% extends "base.html" %}{% block content %}<section class="card">
+<h2>Review &amp; edit the consolidated report</h2>
+<p class="hint" id="review_hint">This is what will be written into the status report. Edit anything before generating.</p>
+<div id="week_summary" class="summary-bar"></div>
+
+<div id="standard_fields" class="layout-section hidden">
+<h3>Completed Tasks</h3>
+<div id="completed_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="add_completed">+ Add task</button></div>
+
+<h3>Milestone &amp; Supporting Activities</h3>
+<table class="milestone-table">
+<thead><tr><th class="col-area">Milestone Area</th><th class="col-task">Task</th><th class="col-status">Status</th><th class="col-remarks">Remarks</th><th class="col-action"></th></tr></thead>
+<tbody id="milestone_rows"></tbody>
+</table>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="add_milestone">+ Add milestone</button></div>
+
+<h3>Upcoming Activities (Next Week Plan)</h3>
+<div id="upcoming_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="add_upcoming">+ Add activity</button></div>
+
+<h3>Risk &amp; Issues</h3>
+<div class="form-group"><textarea id="risks_issues" rows="3" placeholder="None"></textarea></div>
+</div>
+
+<div id="phibro_fields" class="layout-section hidden">
+<h3>Project Status</h3>
+<div class="form-group"><textarea id="phibro_status_summary" rows="4" placeholder="No project status summary was provided for this reporting period."></textarea></div>
+
+<h3>Last Week's Progress</h3>
+<table class="milestone-table">
+<thead><tr><th class="col-milestone">Milestone</th><th class="col-status">Status</th><th class="col-value">Value</th><th class="col-action"></th></tr></thead>
+<tbody id="phibro_rows"></tbody>
+</table>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="phibro_add_row">+ Add row</button></div>
+
+<h3>Issues Resolved Last Week</h3>
+<table class="milestone-table">
+<thead><tr><th class="col-issue">Issue</th><th class="col-resolution">Resolution</th><th class="col-status">Status</th><th class="col-action"></th></tr></thead>
+<tbody id="phibro_issue_rows"></tbody>
+</table>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="phibro_add_issue">+ Add issue</button></div>
+</div>
+
+<div id="medtronic_fields" class="layout-section hidden">
+<h3>Activities Completed This Week</h3>
+<div id="medtronic_completed_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="medtronic_add_completed">+ Add activity</button></div>
+
+<h3>Activities In Process</h3>
+<div id="medtronic_process_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="medtronic_add_process">+ Add activity</button></div>
+
+<h3>Next Action</h3>
+<div id="medtronic_next_action_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="medtronic_add_next_action">+ Add next action</button></div>
+
+<h3>Activities To Be Started Next Week</h3>
+<div id="medtronic_upcoming_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="medtronic_add_upcoming">+ Add activity</button></div>
+</div>
+
+<div id="hmh_fields" class="layout-section hidden">
+<h3>Completed Platforms &amp; Tasks</h3>
+<div id="hmh_completed_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="hmh_add_completed">+ Add task</button></div>
+
+<h3>Ongoing Work (In Progress)</h3>
+<div id="hmh_ongoing_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="hmh_add_ongoing">+ Add activity</button></div>
+
+<h3>Upcoming Activities (Next Plan)</h3>
+<div id="hmh_upcoming_list" class="item-list"></div>
+<div class="button-row"><button type="button" class="btn btn-secondary btn-sm" id="hmh_add_upcoming">+ Add activity</button></div>
+
+<h3>Risk &amp; Issues</h3>
+<div class="form-group"><textarea id="hmh_risks_issues" rows="3" placeholder="None"></textarea></div>
+</div>
+
+<div class="button-row space-between">
+<a href="/step2" class="btn btn-ghost">&larr; Back</a>
+<button class="btn btn-accent" id="generate_btn"><span id="generate_spinner" class="spinner hidden"></span>Generate report</button>
+</div>
+</section>
+{% endblock %}{% block scripts %}<script>window.PROJECT_LAYOUTS = {{ project_layouts | tojson }}; window.DEFAULT_LAYOUT = {{ default_layout | tojson }};</script><script src="{{ url_for('static', filename='js/step3.js') }}"></script>{% endblock %}

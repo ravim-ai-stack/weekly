@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block content %}<section class="card">
+<h2>Select team &amp; project</h2>
+<p class="hint">Choose the team and project this weekly update is for.</p>
+
+<div class="form-row">
+<div class="form-group">
+<label for="team_select">Team</label>
+<select id="team_select">
+<option value="">Select a team...</option>
+{% for team in teams %}<option value="{{ team }}">{{ team }}</option>{% endfor %}
+</select>
+</div>
+<div class="form-group">
+<label for="project_select">Project</label>
+<select id="project_select" disabled><option value="">Select a team first...</option></select>
+</div>
+</div>
+<div id="no_projects_hint" class="hint hidden">No projects have been set up for this team yet.</div>
+
+<div class="button-row right">
+<button class="btn btn-accent" id="continue_btn" disabled>Continue &rarr;</button>
+</div>
+</section>
+{% endblock %}{% block scripts %}<script>window.TEAMS_CONFIG = {{ teams | tojson }};</script><script src="{{ url_for('static', filename='js/step1.js') }}"></script>{% endblock %}
