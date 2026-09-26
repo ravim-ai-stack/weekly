@@ -30,7 +30,9 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
-OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+# Vercel's deployment filesystem is read-only; only /tmp is writable.
+WRITABLE_DIR = "/tmp" if os.getenv("VERCEL") else BASE_DIR
+OUTPUT_DIR = os.path.join(WRITABLE_DIR, "output")
 CLIENT_NAME = "Nova Biomedical"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)

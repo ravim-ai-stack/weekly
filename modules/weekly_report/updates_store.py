@@ -12,7 +12,9 @@ from datetime import datetime, timezone
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(_THIS_DIR))
-DATA_DIR = os.path.join(BASE_DIR, "data")
+# Vercel's deployment filesystem is read-only; only /tmp is writable.
+WRITABLE_DIR = "/tmp" if os.getenv("VERCEL") else BASE_DIR
+DATA_DIR = os.path.join(WRITABLE_DIR, "data")
 STORE_PATH = os.path.join(DATA_DIR, "weekly_updates.json")
 
 _lock = threading.Lock()

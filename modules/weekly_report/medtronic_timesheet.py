@@ -27,8 +27,10 @@ from .llm_consolidate import consolidate_notes
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(_THIS_DIR))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+# Vercel's deployment filesystem is read-only; only /tmp is writable.
+WRITABLE_DIR = "/tmp" if os.getenv("VERCEL") else BASE_DIR
+DATA_DIR = os.path.join(WRITABLE_DIR, "data")
+OUTPUT_DIR = os.path.join(WRITABLE_DIR, "output")
 
 STORE_PATH = os.path.join(DATA_DIR, "medtronic_timesheet_entries.json")
 WORKBOOK_PATH = os.path.join(OUTPUT_DIR, "Medtronic_Time_Sheet.xlsx")
