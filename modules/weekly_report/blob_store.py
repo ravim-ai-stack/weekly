@@ -23,9 +23,17 @@ def put(pathname: str, data: bytes, content_type: str = "application/octet-strea
 
 def get(url: str) -> bytes | None:
     """Fetches a blob's bytes by its URL (as returned by put() or
-    list_objects()). Returns None if the object doesn't exist."""
+    list_objects()). Returns None if the object doesn't exist.
+
+    use_cache=False: every pathname we read is either a JSON store
+    (updates_store.py, medtronic_timesheet.py) overwritten on nearly every
+    request, or a single-pathname generated file (e.g.
+    Medtronic_Time_Sheet.xlsx) overwritten on every save - Vercel's private-
+    blob CDN cache can serve a stale/previous version for up to 60s after an
+    overwrite otherwise, which silently drops the just-written change on the
+    very next read."""
     try:
-        return BlobClient().get(url, access="private").content
+        return BlobClient().get(url, access="private", use_cache=False).content
     except BlobNotFoundError:
         return None
 
