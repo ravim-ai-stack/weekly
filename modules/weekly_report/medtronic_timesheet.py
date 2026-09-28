@@ -1,10 +1,14 @@
 """Builds/maintains the single, continuously-updated Medtronic daily
 timesheet workbook (output/Medtronic_Time_Sheet.xlsx) from a flat JSON store
-of daily entries (data/medtronic_timesheet_entries.json). Every save
-rebuilds the whole workbook from that store rather than surgically editing
-the previous .xlsx - far less error-prone than shifting merged cell ranges
-by hand, and the result is identical either way since the store is the
-single source of truth.
+of daily entries (data/medtronic_timesheet_entries.json). Both are persisted
+in Vercel Blob (see blob_store.py) rather than local disk - Vercel's
+deployment filesystem is read-only, and even /tmp is wiped between deploys
+and isn't shared across serverless instances, so anything written there
+could vanish or be invisible to the very next request. Every save rebuilds
+the whole workbook from the JSON store rather than surgically editing the
+previous .xlsx - far less error-prone than shifting merged cell ranges by
+hand, and the result is identical either way since the store is the single
+source of truth.
 
 Layout mirrors the "check" reference sheet in
 template/Medtronic_Time_Sheet.xlsx (that sheet is only ever read, never
@@ -15,26 +19,20 @@ hours" row. Weeks are stacked newest-first; days within a week are
 chronological, matching the Medtronic weekly status docx's "newest week on
 top" convention."""
 
+import io
 import json
-import os
 import threading
 from datetime import datetime, timedelta
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
+from . import blob_store
 from .llm_consolidate import consolidate_notes
 
-_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = os.path.dirname(os.path.dirname(_THIS_DIR))
-# Vercel's deployment filesystem is read-only; only /tmp is writable.
-WRITABLE_DIR = "/tmp" if os.getenv("VERCEL") else BASE_DIR
-DATA_DIR = os.path.join(WRITABLE_DIR, "data")
-OUTPUT_DIR = os.path.join(WRITABLE_DIR, "output")
-
-STORE_PATH = os.path.join(DATA_DIR, "medtronic_timesheet_entries.json")
-WORKBOOK_PATH = os.path.join(OUTPUT_DIR, "Medtronic_Time_Sheet.xlsx")
+STORE_PATHNAME = "data/medtronic_timesheet_entries.json"
 WORKBOOK_FILENAME = "Medtronic_Time_Sheet.xlsx"
+XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 SHEET_NAME = "Medtronic Time Sheet"
 
 _lock = threading.Lock()
@@ -60,18 +58,16 @@ HEADERS = ["Date", "Responsible Person", "Description", "Hrs", "Total Hrs"]
 
 
 def _load_entries() -> list:
-    if not os.path.exists(STORE_PATH):
-        return []
-    with open(STORE_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    raw = blob_store.get(STORE_PATHNAME)
+    return json.loads(raw) if raw else []
 
 
 def _save_entries(entries: list) -> None:
-    os.makedirs(DATA_DIR, exist_ok=True)
-    tmp_path = STORE_PATH + ".tmp"
-    with open(tmp_path, "w", encoding="utf-8") as f:
-        json.dump(entries, f, indent=2, ensure_ascii=False)
-    os.replace(tmp_path, STORE_PATH)
+    blob_store.put(
+        STORE_PATHNAME,
+        json.dumps(entries, indent=2, ensure_ascii=False).encode("utf-8"),
+        content_type="application/json",
+    )
 
 
 def _week_bounds(date_iso: str):
@@ -202,8 +198,9 @@ def _rebuild_workbook(entries: list) -> None:
         _write_total_row(ws, row, week_total)
         row += 1
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    wb.save(WORKBOOK_PATH)
+    buf = io.BytesIO()
+    wb.save(buf)
+    blob_store.put(f"output/{WORKBOOK_FILENAME}", buf.getvalue(), content_type=XLSX_CONTENT_TYPE)
 
 
 def _parse_range(start_iso: str, end_iso: str):
@@ -255,8 +252,9 @@ def build_range_workbook(start_iso: str, end_iso: str) -> str:
     _write_total_row(ws, row, total)
 
     filename = f"Medtronic_Time_Sheet_{start_d.isoformat()}_to_{end_d.isoformat()}.xlsx"
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    wb.save(os.path.join(OUTPUT_DIR, filename))
+    buf = io.BytesIO()
+    wb.save(buf)
+    blob_store.put(f"output/{filename}", buf.getvalue(), content_type=XLSX_CONTENT_TYPE)
     return filename
 
 

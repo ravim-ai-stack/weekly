@@ -1,4 +1,8 @@
-"""Shared, file-backed store for stage-2 per-person weekly updates.
+"""Shared store for stage-2 per-person weekly updates, persisted in Vercel
+Blob (see blob_store.py) rather than local disk - Vercel's deployment
+filesystem is read-only, and even /tmp is wiped between deploys and isn't
+shared across serverless instances, so anything written there could vanish
+or be invisible to the very next request.
 
 Keyed by (team, project, start_date, end_date) so anyone who opens the same
 team/project for the same week sees everyone else's already-saved (locked)
@@ -6,16 +10,12 @@ entries. Entries are only ever appended once a person ticks/saves their own
 update - there is no partial/draft state on the server."""
 
 import json
-import os
 import threading
 from datetime import datetime, timezone
 
-_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = os.path.dirname(os.path.dirname(_THIS_DIR))
-# Vercel's deployment filesystem is read-only; only /tmp is writable.
-WRITABLE_DIR = "/tmp" if os.getenv("VERCEL") else BASE_DIR
-DATA_DIR = os.path.join(WRITABLE_DIR, "data")
-STORE_PATH = os.path.join(DATA_DIR, "weekly_updates.json")
+from . import blob_store
+
+STORE_PATHNAME = "data/weekly_updates.json"
 
 _lock = threading.Lock()
 
@@ -25,18 +25,16 @@ def _key(team: str, project: str, start_date: str, end_date: str) -> str:
 
 
 def _load() -> dict:
-    if not os.path.exists(STORE_PATH):
-        return {}
-    with open(STORE_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    raw = blob_store.get(STORE_PATHNAME)
+    return json.loads(raw) if raw else {}
 
 
 def _save(data: dict) -> None:
-    os.makedirs(DATA_DIR, exist_ok=True)
-    tmp_path = STORE_PATH + ".tmp"
-    with open(tmp_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    os.replace(tmp_path, STORE_PATH)
+    blob_store.put(
+        STORE_PATHNAME,
+        json.dumps(data, indent=2, ensure_ascii=False).encode("utf-8"),
+        content_type="application/json",
+    )
 
 
 def get_entries(team: str, project: str, start_date: str, end_date: str) -> list:
