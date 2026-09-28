@@ -5,6 +5,7 @@ import io
 import os
 import re
 import uuid
+from urllib.parse import unquote
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, redirect, render_template, request, send_file
@@ -348,6 +349,12 @@ def api_generate():
 
 @app.route("/download/<path:filename>")
 def download(filename):
+    # Vercel's Python runtime hands the WSGI app the raw, still-%-encoded
+    # path segment (e.g. "Nova%20Biomedical") instead of decoding it first
+    # as WSGI/Werkzeug normally would - unquote() is a no-op for an
+    # already-decoded name (our generated filenames never contain a literal
+    # "%"), so this is safe either way.
+    filename = unquote(filename)
     if not SAFE_FILENAME_RE.match(filename):
         return jsonify(success=False, error="Invalid filename."), 400
     data = blob_store.get(f"output/{filename}")
